@@ -1,5 +1,5 @@
 # Specific to whole project / AWS Account
-project        = "Emis"
+project        = "emis"
 aws_account_id = "700527056985"
 state_account  = "700527056985"
 region         = "us-east-1"
