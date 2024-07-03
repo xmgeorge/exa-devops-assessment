@@ -472,7 +472,7 @@ readonly versions_file_path="${base_path}/etc/${versions_file_name}";
 
 # Check for presence of an environment variables file, and use it if readable
 if [ -n "${environment}" ]; then
-  readonly env_file_path="${base_path}/etc/env_${region}_${environment}.tfvars";
+  readonly env_file_path="${base_path}/etc/env_${region}_${environment}_${component}.tfvars";
 fi;
 
 # Check for presence of a global variables file, and use it if readable
@@ -574,7 +574,7 @@ if [ "${bootstrap}" == "true" ]; then
   backend_prefix="${project}/${aws_account_id}/${region}/bootstrap";
   backend_filename="bootstrap.tfstate";
 else
-  backend_prefix="${project}/${aws_account_id}/${region}/${environment}";
+  backend_prefix="${project}/${aws_account_id}/${region}/${environment}/${component}";
   backend_filename="${component_name}.tfstate";
 fi;
 
