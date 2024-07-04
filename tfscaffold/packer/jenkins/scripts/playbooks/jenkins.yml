@@ -69,3 +69,30 @@
       user:
         name: docker
         groups: jenkins
+        
+    - name: Ensure Jenkins ref directory exists
+      file:
+        path: /usr/share/jenkins/ref
+        state: directory
+        owner: jenkins
+        group: jenkins
+        mode: '0755'
+    
+    - name: Copy plugins.txt to Jenkins ref directory
+      copy:
+        src: plugins.txt
+        dest: /usr/share/jenkins/ref/plugins.txt
+        owner: jenkins
+        group: jenkins
+
+    - name: Install Jenkins plugins from plugins.txt
+      command: jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
+      args:
+        creates: /usr/share/jenkins/ref/plugins.txt
+
+    - name: Set Jenkins Upgrade Wizard state
+      copy:
+        content: "2.0\n"
+        dest: /usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state
+        owner: jenkins
+        group: jenkins

@@ -24,7 +24,7 @@ locals {
 
 source "amazon-ebs" "ubuntu" {
   ami_name      = join("-", ["jenkins", local.timestamp])
-  instance_type = "t2.micro"
+  instance_type = var.instance_type
   region        = var.aws_region
   source_ami_filter {
     filters = {
