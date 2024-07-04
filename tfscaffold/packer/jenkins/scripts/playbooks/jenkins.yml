@@ -1,0 +1,71 @@
+---
+- name: Install Jenkins
+  hosts: all
+  become: true
+  tasks:
+    - name: Update apt cache (for Debian/Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+          - fontconfig
+          - openjdk-17-jre
+        state: latest
+        update_cache: true
+
+    - name: Add Jenkins apt Key
+      ansible.builtin.get_url:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+        dest: /usr/share/keyrings/jenkins-keyring.asc
+
+    - name: Add Jenkins Repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+        state: present
+
+    # - name: Add Jenkins repo using key from URL.
+    #   deb822_repository:
+    #     name: jenkins
+    #     types: [deb]
+    #     uris: "https://pkg.jenkins.io/debian-stable"
+    #     components: [binary]
+    #     signed_by: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    #     state: present
+    #     enabled: true
+    
+    - name: Update apt and install jenkins
+      apt:
+        name: jenkins
+        state: latest
+        update_cache: true
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+    
+    - name: The group 'jenkins' added to the docker groups
+      user:
+        name: docker
+        groups: jenkins
