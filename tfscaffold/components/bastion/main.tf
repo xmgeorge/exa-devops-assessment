@@ -10,7 +10,7 @@ data "aws_key_pair" "bastion" {
   include_public_key = true
 }
 
-module "ec2_instance" {
+module "bastion_instance" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "5.3.1"
 
@@ -22,7 +22,7 @@ module "ec2_instance" {
   associate_public_ip_address = var.associate_public_ip_address
   key_name                    = data.aws_key_pair.bastion.key_name
   create_iam_instance_profile = true
-  iam_role_description        = "IAM role for EC2 instance"
+  iam_role_description        = "IAM role for bastion EC2 instance"
   iam_role_policies = {
     AdministratorAccess = "arn:aws:iam::aws:policy/AdministratorAccess"
   }
