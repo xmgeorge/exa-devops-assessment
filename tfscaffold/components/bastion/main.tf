@@ -64,7 +64,7 @@ module "bastion_service_sg" {
       to_port     = 0
       protocol    = -1
       description = "Service name"
-      cidr_blocks = "${data.terraform_remote_state.vpc.outputs.vpc_cidr}"
+      cidr_blocks = "${data.terraform_remote_state.vpc.outputs.vpc_cidr},0.0.0.0/0"
     },
   ]
 
