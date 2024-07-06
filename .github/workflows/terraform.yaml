@@ -18,6 +18,9 @@ jobs:
     container:
       image: georgeulahannan/terraform:06
       options: --user root  # Ensure Terraform commands run with root user if needed
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - name: Checkout code
