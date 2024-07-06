@@ -7,9 +7,9 @@ resource "aws_eks_node_group" "eks_nodegroup_public" {
   version = var.cluster_version
 
   scaling_config {
-    desired_size = 1
-    max_size     = 1
-    min_size     = 1
+    desired_size = 3
+    max_size     = 3
+    min_size     = 3
   }
 
   update_config {

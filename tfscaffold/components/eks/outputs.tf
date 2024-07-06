@@ -72,3 +72,9 @@ output "openid_connect_provider_arn_extract" {
   description = "The OpenID Connect identity provider ARN extract"
   value       = local.openid_connect_provider_arn_extract
 }
+
+
+output "eks_connect" {
+  description = "Command to update kubeconfig to connect to the EKS cluster"
+  value       = "aws eks --region ${var.region} update-kubeconfig --name ${aws_eks_cluster.eks_cluster.id}"
+}
