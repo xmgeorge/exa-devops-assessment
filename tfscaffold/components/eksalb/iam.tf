@@ -38,10 +38,10 @@ resource "aws_iam_role" "aws_load_balancer_controller_role" {
     ]
   })
 
-   tags = merge(local.tags,
-  {
-    Name = "aws_load_balancer_controller"
-  }
+  tags = merge(local.tags,
+    {
+      Name = "aws_load_balancer_controller"
+    }
   )
 }
 
