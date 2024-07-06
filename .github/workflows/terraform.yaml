@@ -28,12 +28,35 @@ jobs:
         with:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-east-1 
+            aws-region: us-east-1
+        
+      - name: Get branch name
+        id: get_branch
+        run: echo "::set-output name=branch_name::$(echo ${GITHUB_REF#refs/heads/})"
+    
+      - name: Get build ID
+        id: get_build_id
+        run: echo "::set-output name=build_id::${GITHUB_RUN_ID}"
 
-      - name: Teraaform VPC Plan
+      - name: Teraform VPC Plan
         run: |
           cd tfscaffold
-          ./bin/terraform.sh -p emis -c vpc -e dev -r us-east-1 -a plan
+          ./bin/terraform.sh -p emis -c vpc -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a plan
+
+      - name: Teraform EKS Plan
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c eks -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a plan
+
+      - name: Teraform EKSALB Plan
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c eksalb -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a plan
+      
+      - name: Teraform EKSARGOCD Plan
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c eksargocd -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a plan
           
 
 
