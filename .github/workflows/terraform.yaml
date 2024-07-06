@@ -1,0 +1,26 @@
+name: Terraform
+
+on:
+  push:
+    paths:
+      - 'tfscaffold/**'
+  pull_request:
+    paths:
+      - 'tfscaffold/**'
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    container:
+      image: georgeulahannan/terraform:06
+      options: --user root  # Ensure Terraform commands run with root user if needed
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Terraform Init
+        run: |
+          cd tfscaffold
+          ls
