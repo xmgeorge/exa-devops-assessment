@@ -8,5 +8,6 @@ locals {
     },
   )
 
+
   eks_cluster_name = "${var.project}-${var.environment}"
 }
