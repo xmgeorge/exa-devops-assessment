@@ -18,9 +18,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Terraform Init
+      - name: Terraform Plan VPC
         run: |
           cd tfscaffold
-          ls
+          ./bin/terraform.sh -p emis -c vpc -e dev -r us-east-1 -a plan
