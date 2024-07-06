@@ -85,6 +85,20 @@ jobs:
 
       - name: Terraform EKSARGOCD Apply
         if: steps.eksargocd_plan.outcome == 'success'
+        id: eksargocd_apply
         run: |
           cd tfscaffold
           ./bin/terraform.sh -p emis -c eksargocd -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a apply
+    
+      - name: Terraform ARGOCDAPP Plan
+        if: steps.eksargocd_apply.outcome == 'success'
+        id: argocdapp_plan
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c argocdapp -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a plan
+
+      - name: Terraform ARGOCDAPP Apply
+        if: steps.argocdapp_plan.outcome == 'success'
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c argocdapp -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a apply
