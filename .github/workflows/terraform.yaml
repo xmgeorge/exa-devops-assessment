@@ -13,11 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-        image: georgeulahannan/terraform:07
-        options: --user root
-    # env:
-    #   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      image: georgeulahannan/terraform:07
+      options: --user root
 
     steps:
       - name: Checkout code
@@ -26,37 +23,68 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-east-1
-        
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
       - name: Get branch name
         id: get_branch
         run: echo "::set-output name=branch_name::$(echo ${GITHUB_REF#refs/heads/})"
-    
+
       - name: Get build ID
         id: get_build_id
         run: echo "::set-output name=build_id::${GITHUB_RUN_ID}"
 
-      - name: Teraform VPC Plan
+      - name: Terraform VPC Plan
+        id: vpc_plan
         run: |
           cd tfscaffold
           ./bin/terraform.sh -p emis -c vpc -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a plan
 
-      - name: Teraform EKS Plan
+      - name: Terraform VPC Apply
+        id: vpc_apply
+        if: steps.vpc_plan.outcome == 'success'
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c vpc -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a apply
+
+      - name: Terraform EKS Plan
+        if: steps.vpc_apply.outcome == 'success'
+        id: eks_plan
         run: |
           cd tfscaffold
           ./bin/terraform.sh -p emis -c eks -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a plan
 
-      - name: Teraform EKSALB Plan
+      - name: Terraform EKS Apply
+        if: steps.eks_plan.outcome == 'success'
+        id: eks_apply
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c eks -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a apply
+
+      - name: Terraform EKSALB Plan
+        if: steps.eks_apply.outcome == 'success'
+        id: eksalb_plan
         run: |
           cd tfscaffold
           ./bin/terraform.sh -p emis -c eksalb -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a plan
-      
-      - name: Teraform EKSARGOCD Plan
+
+      - name: Terraform EKSALB Apply
+        if: steps.eksalb_plan.outcome == 'success'
+        id: eksalb_apply
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c eksalb -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a apply
+
+      - name: Terraform EKSARGOCD Plan
+        if: steps.eksalb_apply.outcome == 'success'
+        id: eksargocd_plan
         run: |
           cd tfscaffold
           ./bin/terraform.sh -p emis -c eksargocd -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a plan
-          
 
-
+      - name: Terraform EKSARGOCD Apply
+        if: steps.eksargocd_plan.outcome == 'success'
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c eksargocd -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a apply
