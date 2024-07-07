@@ -34,12 +34,12 @@ jobs:
       - name: Initialize Packer build
         run: |
           cd packer/bastion
-          packer init aws-ubuntu-jenkins.pkr.hcl
+          packer init aws-ubuntu-bastion.pkr.hcl
 
       - name: Build AMI with Packer
         run: |
           cd packer/bastion
-          packer build aws-ubuntu-jenkins.pkr.hcl
+          packer build aws-ubuntu-bastion.pkr.hcl
 
   deploy-bastion:
     runs-on: ubuntu-latest
