@@ -37,6 +37,8 @@ resource "aws_eks_node_group" "eks_nodegroup_public" {
     local.tags,
      {
       Name = "NodeGroup_Public"
+     "k8s.io/cluster-autoscaler/${local.eks_cluster_name}" = "owned"
+     "k8s.io/cluster-autoscaler/enabled" = "TRUE"
      }
   )
 }
@@ -72,5 +74,11 @@ resource "aws_iam_role_policy_attachment" "eks_AmazonEKS_CNI_Policy" {
 
 resource "aws_iam_role_policy_attachment" "eks_AmazonEC2ContainerRegistryReadOnly" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.eks_nodegroup_iam_role.name
+}
+
+
+resource "aws_iam_role_policy_attachment" "eks_Autoscaling_Full_Access" {
+  policy_arn = "arn:aws:iam::aws:policy/AutoScalingFullAccess"
   role       = aws_iam_role.eks_nodegroup_iam_role.name
 }
