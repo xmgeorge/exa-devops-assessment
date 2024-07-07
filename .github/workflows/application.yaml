@@ -9,7 +9,7 @@ on:
       - 'app/**'
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,3 +28,36 @@ jobs:
           context: app
           push: true
           tags: georgeulahannan/devopassessment:${{ github.sha }}
+
+
+
+
+  update-k8s-manifest:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: success()
+
+    steps:
+        - name: Checkout source code
+          uses: actions/checkout@v4
+
+        - name: Set up Git configuration
+          run: |
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+        - name: Checkout target repository
+          uses: actions/checkout@v4
+          with:
+            ref: main
+            repository: https://github.com/xmgeorge/sample-app.git  # Replace with your target repository
+            token: ${{ secrets.MAINFEST_GITHUB_TOKEN }}
+            path: k8s-manifests
+
+        - name: Update Kubernetes manifest with new image tag
+          run: |
+            cd target-repo  # Change to the directory of the target repository
+            sed -i "s|image: georgeulahannan/devopassessment:.*|image: georgeulahannan/devopassessment:${{ github.sha }}|g" path/to/deployment.yaml  # Update this path as necessary
+            git add k8s-manifests/deployment.yaml  # Add the changed file
+            git commit -m "Update image tag to ${{ github.sha }}"
+            git push origin main
