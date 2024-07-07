@@ -50,7 +50,7 @@ jobs:
           uses: actions/checkout@v4
           with:
             ref: main
-            repository: https://github.com/xmgeorge/sample-app.git  # Replace with your target repository
+            repository: xmgeorge/sample-app  # Replace with your target repository
             token: ${{ secrets.MAINFEST_GITHUB_TOKEN }}
             path: k8s-manifests
 
