@@ -17,12 +17,19 @@ jobs:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: us-east-1
-    
-      - name: Install Packer
+      
+      - name: Check if Packer is installed
+        id: check-packer
         run: |
-          wget https://releases.hashicorp.com/packer/1.7.6/packer_1.7.6_linux_amd64.zip
-          unzip -o packer_1.7.6_linux_amd64.zip
-          sudo mv packer /usr/local/bin/
+              if ! command -v packer &> /dev/null
+              then
+                echo "Packer is not installed. Proceeding with installation."
+                wget https://releases.hashicorp.com/packer/1.7.6/packer_1.7.6_linux_amd64.zip
+                unzip -o packer_1.7.6_linux_amd64.zip
+                sudo mv packer /usr/local/bin/
+              else
+                echo "Packer is already installed."
+              fi
 
       - name: Initialize Packer build
         run: |
