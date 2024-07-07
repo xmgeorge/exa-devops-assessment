@@ -1,0 +1,66 @@
+name: Terraform Bastion Deployment
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-1
+    
+      - name: Install Packer
+        run: |
+          wget https://releases.hashicorp.com/packer/1.7.6/packer_1.7.6_linux_amd64.zip
+          unzip packer_1.7.6_linux_amd64.zip
+          sudo mv packer /usr/local/bin/
+
+      - name: Initialize Packer build
+        run: packer init aws-ubuntu-jenkins.pkr.hcl
+
+      - name: Build AMI with Packer
+        run: packer build aws-ubuntu-jenkins.pkr.hcl
+
+  deploy-bastion:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: success()
+
+    container:
+      image: georgeulahannan/terraform:07
+      options: --user root
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-1
+
+      - name: Run Terraform apply
+        run: ./bin/terraform.sh -p emis -c bastion -e dev -r us-east-1 -a apply
+
+      - name: Terraform Bastion Plan
+        id: bastion_plan
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c bastion -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a plan
+
+      - name: Terraform EKS Plan
+        if: steps.bastion_plan.outcome == 'success'
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c bastion -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a apply
