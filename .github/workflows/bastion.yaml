@@ -61,9 +61,6 @@ jobs:
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: us-east-1
 
-      - name: Run Terraform apply
-        run: ./bin/terraform.sh -p emis -c bastion -e dev -r us-east-1 -a apply
-
       - name: Terraform Bastion Plan
         id: bastion_plan
         run: |
