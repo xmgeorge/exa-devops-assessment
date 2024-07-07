@@ -56,8 +56,8 @@ jobs:
 
         - name: Update Kubernetes manifest with new image tag
           run: |
-            cd target-repo  # Change to the directory of the target repository
-            sed -i "s|image: georgeulahannan/devopassessment:.*|image: georgeulahannan/devopassessment:${{ github.sha }}|g" path/to/deployment.yaml  # Update this path as necessary
+            cd k8s-manifests # Change to the directory of the target repository
+            sed -i "s|image: georgeulahannan/devopassessment:.*|image: georgeulahannan/devopassessment:${{ github.sha }}|g" k8s-manifests/deployment.yaml  # Update this path as necessary
             git add k8s-manifests/deployment.yaml  # Add the changed file
             git commit -m "Update image tag to ${{ github.sha }}"
             git push origin main
