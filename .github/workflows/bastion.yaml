@@ -25,10 +25,14 @@ jobs:
           sudo mv packer /usr/local/bin/
 
       - name: Initialize Packer build
-        run: packer init aws-ubuntu-jenkins.pkr.hcl
+        run: |
+          cd packer/bastion
+          packer init aws-ubuntu-jenkins.pkr.hcl
 
       - name: Build AMI with Packer
-        run: packer build aws-ubuntu-jenkins.pkr.hcl
+        run: |
+          cd packer/bastion
+          packer build aws-ubuntu-jenkins.pkr.hcl
 
   deploy-bastion:
     runs-on: ubuntu-latest
