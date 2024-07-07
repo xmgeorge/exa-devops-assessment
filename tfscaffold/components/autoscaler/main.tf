@@ -40,3 +40,13 @@ resource "helm_release" "cluster_autoscaler_release" {
 
 
 }
+
+
+
+
+resource "helm_release" "metrics_server_release" {
+  name       = "${local.eks_cluster_name}-metrics-server"
+  repository = "https://kubernetes-sigs.github.io/metrics-server/"
+  chart      = "metrics-server"
+  namespace = "kube-system"   
+}
