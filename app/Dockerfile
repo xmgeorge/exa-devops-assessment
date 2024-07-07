@@ -22,6 +22,7 @@ FROM node:14-alpine
 # Set the working directory
 WORKDIR /usr/src/app
 
+
 # Copy only the necessary files from the build stage
 COPY --from=build /usr/src/app /usr/src/app
 
