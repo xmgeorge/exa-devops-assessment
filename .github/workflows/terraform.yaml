@@ -62,8 +62,23 @@ jobs:
           cd tfscaffold
           ./bin/terraform.sh -p emis -c eks -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a apply
 
-      - name: Terraform EKSALB Plan
+
+      - name: Terraform Cluster Autoscaler Plan
         if: steps.eks_apply.outcome == 'success'
+        id: eksca_plan
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c autoscaler -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a plan
+  
+      - name: Terraform Cluster Autoscaler Plan
+        if: steps.eksca_plan.outcome == 'success'
+        id: ekca_apply
+        run: |
+          cd tfscaffold
+          ./bin/terraform.sh -p emis -c autoscaler -i ${{ steps.get_build_id.outputs.build_id }} -e ${{ steps.get_branch.outputs.branch_name }} -r us-east-1 -a apply
+
+      - name: Terraform EKSALB Plan
+        if: steps.ekca_apply.outcome == 'success'
         id: eksalb_plan
         run: |
           cd tfscaffold
