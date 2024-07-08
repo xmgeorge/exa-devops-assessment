@@ -22,8 +22,8 @@ resource "kubernetes_manifest" "sample_app" {
       }
       syncPolicy = {
         automated = {
-          prune     = true
-          selfHeal  = true
+          prune      = true
+          selfHeal   = true
           allowEmpty = false
         }
       }

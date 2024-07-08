@@ -1,6 +1,6 @@
 data "aws_partition" "current" {
 
-  
+
 }
 
 data "tls_certificate" "eks" {

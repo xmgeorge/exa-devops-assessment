@@ -1,10 +1,10 @@
 
 resource "aws_eks_node_group" "eks_nodegroup_public" {
-  cluster_name    = aws_eks_cluster.eks_cluster.name
+  cluster_name           = aws_eks_cluster.eks_cluster.name
   node_group_name_prefix = "${local.eks_cluster_name}-nodegroup-public"
-  node_role_arn   = aws_iam_role.eks_nodegroup_iam_role.arn
-  subnet_ids      = data.terraform_remote_state.vpc.outputs.public_subnets
-  version = var.cluster_version
+  node_role_arn          = aws_iam_role.eks_nodegroup_iam_role.arn
+  subnet_ids             = data.terraform_remote_state.vpc.outputs.public_subnets
+  version                = var.cluster_version
 
   scaling_config {
     desired_size = 1
@@ -16,9 +16,9 @@ resource "aws_eks_node_group" "eks_nodegroup_public" {
     max_unavailable = 1
   }
 
-  ami_type = "AL2_x86_64"
-  capacity_type = "ON_DEMAND"
-  disk_size = 20
+  ami_type       = "AL2_x86_64"
+  capacity_type  = "ON_DEMAND"
+  disk_size      = 20
   instance_types = ["t3.medium"]
 
   remote_access {
@@ -35,11 +35,11 @@ resource "aws_eks_node_group" "eks_nodegroup_public" {
 
   tags = merge(
     local.tags,
-     {
-      Name = "NodeGroup_Public"
-     "k8s.io/cluster-autoscaler/${local.eks_cluster_name}" = "owned"
-     "k8s.io/cluster-autoscaler/enabled" = "TRUE"
-     }
+    {
+      Name                                                  = "NodeGroup_Public"
+      "k8s.io/cluster-autoscaler/${local.eks_cluster_name}" = "owned"
+      "k8s.io/cluster-autoscaler/enabled"                   = "TRUE"
+    }
   )
 }
 
